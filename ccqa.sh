@@ -17,7 +17,7 @@ MONTHS=(
 # MONTHLY_WARC=("https://data.commoncrawl.org/crawl-data/CC-MAIN-2022-27/warc.paths.gz" "https://data.commoncrawl.org/crawl-data/CC-MAIN-2022-21/warc.paths.gz")
 WARC_PATH=$HOME/CCQA/warc
 HTTPS_PREFIX="https://"
-GZ_PREFIX=".gz"
+GZ_SUFFIX=".gz"
 WARC_SUFFIX="warc.paths"
 CWD=$PWD
 
@@ -44,7 +44,7 @@ cd $CWD
 echo "Creating WARC Directory: $WARC_PATH"
 mkdir -p $WARC_PATH
 for month in "${MONTHS[@]}"; do
-    month_warc="$HTTPS_PREFIX"data.commoncrawl.org/crawl-data/CC-MAIN-$month/$warc_paths$warc_suffix
+    month_warc="$HTTPS_PREFIX"data.commoncrawl.org/crawl-data/CC-MAIN-$month/$warc_paths$WARC_SUFFIX$GZ_SUFFIX
 
     echo "Downloading $month_warc ..."
     wget -r -np -N -P $WARC_PATH $month_warc
@@ -52,7 +52,7 @@ for month in "${MONTHS[@]}"; do
 
     echo "Unzipping $file_path ..."
     gunzip -f $file_path
-    unzipped_file_path=${file_path%"$GZ_PREFIX"}
+    unzipped_file_path=${file_path%"$GZ_SUFFIX"}
 
     echo "Reading segments from $unzipped_file_path..."
     while read segment; do
@@ -62,7 +62,7 @@ for month in "${MONTHS[@]}"; do
 
         echo "Unzipping segment $segment_path ..."
         gunzip -f $segment_path
-        unzipped_segment_path=${segment_path%"$GZ_PREFIX"}
+        unzipped_segment_path=${segment_path%"$GZ_SUFFIX"}
 
         echo "Processing Common Crawl data (Rust) to create the minified HTML data $unzipped_segment_path.mhtml ..."
         cd $CWD/rust && cargo run $unzipped_segment_path "$unzipped_segment_path.mhtml"
